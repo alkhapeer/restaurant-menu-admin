@@ -3,106 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منيو المطاعم</title>
+    <title>إدارة المطاعم</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        input, select, button {
-            margin: 5px;
-            padding: 8px;
-        }
-        #adminSection {
-            display: none; /* إخفاء القسم حتى يتم التحقق من كلمة المرور */
-            margin-top: 20px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
     </style>
 </head>
 <body>
-
-    <h1>منيو المطاعم</h1>
-
-    <select id="country">
-        <option value="السعودية">السعودية</option>
-    </select>
-
-    <select id="city">
-        <option value="الرياض">الرياض</option>
-    </select>
-
-    <input type="text" id="searchBox" placeholder="ابحث عن المطعم">
-    <button onclick="searchRestaurant()">بحث</button>
-
-    <div id="adminSection">
-        <h2>إضافة مطعم</h2>
-        <input type="text" id="restaurantName" placeholder="اسم المطعم">
-        <input type="text" id="menuLink" placeholder="رابط القائمة">
-        <button onclick="addRestaurant()">إضافة</button>
-    </div>
-
-    <h2>المطاعم المسجلة</h2>
-    <ul id="restaurantList"></ul>
-
+    <h1>إدارة المطاعم</h1>
+    
+    <input type="text" id="restaurantName" placeholder="اسم المطعم">
+    <input type="text" id="restaurantMenu" placeholder="رابط المنيو">
+    <button onclick="addRestaurant()">إضافة مطعم</button>
+    
+    <h2>قائمة المطاعم</h2>
+    <ul id="restaurantsList"></ul>
+    
     <script>
-        // تحقق من كلمة المرور عند تحميل الصفحة
-        function checkAdmin() {
-            let password = prompt("أدخل كلمة المرور:");
-            if (password === "1234") { // قم بتغيير كلمة المرور هنا
-                document.getElementById("adminSection").style.display = "block";
-            }
+        function loadRestaurants() {
+            let restaurants = JSON.parse(localStorage.getItem('restaurants')) || [];
+            let list = document.getElementById('restaurantsList');
+            list.innerHTML = "";
+            restaurants.forEach((restaurant, index) => {
+                let listItem = document.createElement("li");
+                listItem.innerHTML = `${restaurant.name} - <a href="${restaurant.menu}" target="_blank">عرض المنيو</a> ` +
+                    `<button onclick="deleteRestaurant(${index})">حذف</button>`;
+                list.appendChild(listItem);
+            });
         }
 
-        window.onload = checkAdmin;
-
-        // قائمة المطاعم المخزنة
-        let restaurants = [];
-
-        // إضافة مطعم جديد
         function addRestaurant() {
-            let name = document.getElementById("restaurantName").value;
-            let link = document.getElementById("menuLink").value;
-
-            if (name && link) {
-                restaurants.push({ name: name, link: link });
-                updateRestaurantList();
-                document.getElementById("restaurantName").value = "";
-                document.getElementById("menuLink").value = "";
-            } else {
-                alert("يرجى إدخال اسم المطعم ورابط القائمة!");
+            let name = document.getElementById('restaurantName').value;
+            let menu = document.getElementById('restaurantMenu').value;
+            if (name && menu) {
+                let restaurants = JSON.parse(localStorage.getItem('restaurants')) || [];
+                restaurants.push({ name, menu });
+                localStorage.setItem('restaurants', JSON.stringify(restaurants));
+                loadRestaurants();
             }
         }
 
-        // تحديث قائمة المطاعم في الصفحة
-        function updateRestaurantList() {
-            let list = document.getElementById("restaurantList");
-            list.innerHTML = "";
-            restaurants.forEach(resto => {
-                let item = document.createElement("li");
-                item.innerHTML = `${resto.name} - <a href="${resto.link}" target="_blank">عرض المنيو</a>`;
-                list.appendChild(item);
-            });
+        function deleteRestaurant(index) {
+            let restaurants = JSON.parse(localStorage.getItem('restaurants')) || [];
+            restaurants.splice(index, 1);
+            localStorage.setItem('restaurants', JSON.stringify(restaurants));
+            loadRestaurants();
         }
-
-        // البحث عن مطعم
-        function searchRestaurant() {
-            let searchQuery = document.getElementById("searchBox").value.toLowerCase();
-            let filteredRestaurants = restaurants.filter(resto => resto.name.toLowerCase().includes(searchQuery));
-
-            let list = document.getElementById("restaurantList");
-            list.innerHTML = "";
-
-            filteredRestaurants.forEach(resto => {
-                let item = document.createElement("li");
-                item.innerHTML = `${resto.name} - <a href="${resto.link}" target="_blank">عرض المنيو</a>`;
-                list.appendChild(item);
-            });
-
-            if (filteredRestaurants.length === 0) {
-                list.innerHTML = "<li>لم يتم العثور على مطاعم.</li>";
-            }
-        }
+        
+        document.addEventListener("DOMContentLoaded", loadRestaurants);
     </script>
-
 </body>
 </html>
