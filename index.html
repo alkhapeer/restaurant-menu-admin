@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منيو المطاعم</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { max-width: 600px; margin: auto; }
+        select, input, button { margin: 5px; padding: 10px; }
+        .menu-list { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>منيو المطاعم</h1>
+    <div class="container">
+        <select id="countrySelect">
+            <option value="السعودية">السعودية</option>
+            <option value="الإمارات">الإمارات</option>
+        </select>
+        <select id="citySelect">
+            <option value="الرياض">الرياض</option>
+            <option value="جدة">جدة</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="ابحث عن المطعم">
+        <button onclick="searchRestaurant()">بحث</button>
+        
+        <h2>إضافة مطعم</h2>
+        <input type="text" id="restaurantName" placeholder="اسم المطعم">
+        <input type="text" id="restaurantMenu" placeholder="رابط المنيو">
+        <button onclick="addRestaurant()">إضافة</button>
+        
+        <h2>المطاعم المسجلة</h2>
+        <ul id="restaurantList"></ul>
+    </div>
+    
+    <script>
+        let restaurants = JSON.parse(localStorage.getItem("restaurants")) || [];
+        
+        function addRestaurant() {
+            let country = document.getElementById("countrySelect").value;
+            let city = document.getElementById("citySelect").value;
+            let name = document.getElementById("restaurantName").value;
+            let menu = document.getElementById("restaurantMenu").value;
+            
+            if (name && menu) {
+                restaurants.push({ country, city, name, menu });
+                localStorage.setItem("restaurants", JSON.stringify(restaurants));
+                displayRestaurants();
+            }
+        }
+        
+        function displayRestaurants() {
+            let list = document.getElementById("restaurantList");
+            list.innerHTML = "";
+            restaurants.forEach((r, index) => {
+                let li = document.createElement("li");
+                li.innerHTML = `${r.name} - <a href="${r.menu}" target="_blank">عرض المنيو</a>`;
+                list.appendChild(li);
+            });
+        }
+        
+        function searchRestaurant() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let filtered = restaurants.filter(r => r.name.toLowerCase().includes(query));
+            
+            let list = document.getElementById("restaurantList");
+            list.innerHTML = "";
+            filtered.forEach(r => {
+                let li = document.createElement("li");
+                li.innerHTML = `${r.name} - <a href="${r.menu}" target="_blank">عرض المنيو</a>`;
+                list.appendChild(li);
+            });
+        }
+        
+        displayRestaurants();
+    </script>
+</body>
+</html>
