@@ -3,53 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المطاعم</title>
+    <title>منيو المطاعم</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
+        body { font-family: Arial, sans-serif; text-align: center; direction: rtl; }
     </style>
 </head>
 <body>
-    <h1>إدارة المطاعم</h1>
+    <h1>منيو المطاعم</h1>
     
-    <input type="text" id="restaurantName" placeholder="اسم المطعم">
-    <input type="text" id="restaurantMenu" placeholder="رابط المنيو">
-    <button onclick="addRestaurant()">إضافة مطعم</button>
+    <div>
+        <select id="country">
+            <option>السعودية</option>
+            <option>الإمارات</option>
+        </select>
+        <select id="city">
+            <option>الرياض</option>
+            <option>جدة</option>
+        </select>
+        <input type="text" id="search" placeholder="ابحث عن المطعم">
+        <button onclick="searchRestaurant()">بحث</button>
+    </div>
     
-    <h2>قائمة المطاعم</h2>
+    <h2>المطاعم المسجلة</h2>
     <ul id="restaurantsList"></ul>
     
+    <h2><a href="admin.html">صفحة الإدارة</a></h2>
+    
     <script>
-        function loadRestaurants() {
-            let restaurants = JSON.parse(localStorage.getItem('restaurants')) || [];
+        let restaurants = JSON.parse(localStorage.getItem("restaurants")) || [];
+
+        function displayRestaurants() {
             let list = document.getElementById('restaurantsList');
             list.innerHTML = "";
-            restaurants.forEach((restaurant, index) => {
+            restaurants.forEach(restaurant => {
                 let listItem = document.createElement("li");
-                listItem.innerHTML = `${restaurant.name} - <a href="${restaurant.menu}" target="_blank">عرض المنيو</a> ` +
-                    `<button onclick="deleteRestaurant(${index})">حذف</button>`;
+                listItem.innerHTML = `${restaurant.name} - <a href="${restaurant.menu}" target="_blank">عرض المنيو</a>`;
                 list.appendChild(listItem);
             });
         }
 
-        function addRestaurant() {
-            let name = document.getElementById('restaurantName').value;
-            let menu = document.getElementById('restaurantMenu').value;
-            if (name && menu) {
-                let restaurants = JSON.parse(localStorage.getItem('restaurants')) || [];
-                restaurants.push({ name, menu });
-                localStorage.setItem('restaurants', JSON.stringify(restaurants));
-                loadRestaurants();
-            }
+        function searchRestaurant() {
+            let searchQuery = document.getElementById('search').value.toLowerCase();
+            let list = document.getElementById('restaurantsList');
+            list.innerHTML = "";
+            restaurants.forEach(restaurant => {
+                if (restaurant.name.toLowerCase().includes(searchQuery)) {
+                    let listItem = document.createElement("li");
+                    listItem.innerHTML = `${restaurant.name} - <a href="${restaurant.menu}" target="_blank">عرض المنيو</a>`;
+                    list.appendChild(listItem);
+                }
+            });
         }
 
-        function deleteRestaurant(index) {
-            let restaurants = JSON.parse(localStorage.getItem('restaurants')) || [];
-            restaurants.splice(index, 1);
-            localStorage.setItem('restaurants', JSON.stringify(restaurants));
-            loadRestaurants();
-        }
-        
-        document.addEventListener("DOMContentLoaded", loadRestaurants);
+        displayRestaurants();
     </script>
 </body>
 </html>
